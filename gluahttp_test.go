@@ -245,10 +245,10 @@ func TestPostJSON(t *testing.T) {
 		local jsonStr = "{\"username\":\"bob\",\"password\":\"secret\"}"
 		response, error = http.post("http://`+listener.Addr().String()+`", {
 				headers={
-            		Accept="application/json",
-            		Authorization="auth"
+            		["Accept"]="application/json;charset=utf-8",
+					["Content-Type"]="application/json;charset=utf-8"
         		},
-				jsonBody=jsonStr
+				form =jsonStr
 			})
 
 		print(type(response.body))

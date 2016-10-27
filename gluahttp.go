@@ -138,12 +138,6 @@ func (h *httpModule) doRequest(L *lua.LState, method string, url string, options
 	}
 
 	if options != nil {
-		if reqHeaders, ok := options.RawGet(lua.LString("headers")).(*lua.LTable); ok {
-			reqHeaders.ForEach(func(key lua.LValue, value lua.LValue) {
-				req.Header.Set(key.String(), value.String())
-			})
-		}
-
 		if reqCookies, ok := options.RawGet(lua.LString("cookies")).(*lua.LTable); ok {
 			reqCookies.ForEach(func(key lua.LValue, value lua.LValue) {
 				req.AddCookie(&http.Cookie{Name: key.String(), Value: value.String()})
@@ -171,16 +165,10 @@ func (h *httpModule) doRequest(L *lua.LState, method string, url string, options
 			break
 		}
 
-		switch reqJSONBody := options.RawGet(lua.LString("jsonBody")).(type) {
-		case *lua.LNilType:
-			break
-
-		case lua.LString:
-			body := reqJSONBody.String()
-			req.ContentLength = int64(len(body))
-			req.Header.Set("Content-Type", "application/json;charset=utf-8")
-			req.Body = ioutil.NopCloser(strings.NewReader(body))
-			break
+		if reqHeaders, ok := options.RawGet(lua.LString("headers")).(*lua.LTable); ok {
+			reqHeaders.ForEach(func(key lua.LValue, value lua.LValue) {
+				req.Header.Set(key.String(), value.String())
+			})
 		}
 	}
 	res, err := h.client.Do(req)
